@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.saibo.dao.SysFileDao">
+
+    <resultMap id="SysFileResult" type="com.saibo.model.SysFile">
+        <id property="id" column="id" jdbcType="VARCHAR"/>
+        <result property="fileName" column="file_name" jdbcType="VARCHAR"/>
+        <result property="url" column="url" jdbcType="VARCHAR"/>
+    </resultMap>
+
+    <insert id="save" parameterType="com.saibo.model.SysFile">
+        insert into t_sysfile(id,file_name,url)  values (#{id},#{fileName},#{url})
+    </insert>
+
+    <select id="getAll"  resultMap="SysFileResult">
+    select * from  t_sysfile
+    </select>
+
+    <select id="getById" parameterType="String" resultMap="SysFileResult">
+        select * from t_sysfile where id=#{id}
+    </select>
+</mapper>

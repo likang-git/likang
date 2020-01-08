@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link rel="stylesheet" href="../layui/css/layui.css"/>
+</head>
+<body>
+<table id="geSign" lay-filter="geSign"></table>
+
+<script type="text/javascript" src="../js/jquery-2.1.4.min.js"></script>
+<script src="../layui/layui.js"></script>
+
+<script>
+    layui.use(['table', 'layer', 'jquery','laydate','element'], function () {
+        var table = layui.table;
+        var layer = layui.layer;
+        var userId = "[[${userId}]]";
+        var laydate = layui.laydate;
+        var element = layui.element;
+
+        table.render({
+            elem: '#geSign'
+            , height: 'full-90'
+            , url: '/sign/geSign?userId='+userId
+            , page: true
+            , toolbar: '#userHeaderToolsBar'
+            , defaultToolbar: ['']//exports导出插件
+            , cols:
+                [
+                    [
+                        {field: 'sn', type: 'numbers', title: '序号', fixed: 'left'}
+                        ,{field: 'name', title: '姓名'}
+                        ,{field: 'signIn', title: '上班打卡时间'}
+                        ,{field: 'signOut', title: '下班打卡时间'}
+                    ]
+                ]
+        });
+    });
+
+</script>
+</body>
+</html>

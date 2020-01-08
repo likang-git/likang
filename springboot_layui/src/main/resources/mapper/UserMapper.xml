@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.saibo.dao.UserDao">
+
+
+    <resultMap id="UserResult" type="com.saibo.model.User">
+        <id property="id" column="ID" jdbcType="NUMERIC"/>
+        <result property="name" column="NAME" jdbcType="VARCHAR"/>
+        <result property="userName" column="USER_NAME" jdbcType="VARCHAR"/>
+        <result property="password" column="PASSWORD" jdbcType="VARCHAR"/>
+        <result property="position" column="POSITION" jdbcType="VARCHAR"/>
+        <result property="phone" column="PHONE" jdbcType="VARCHAR"/>
+        <result property="address" column="ADDRESS" jdbcType="VARCHAR"/>
+        <result property="hireDate" column="HIRE_DATE" jdbcType="TIMESTAMP"/>
+        <result property="isdel" column="ISDEL" jdbcType="VARCHAR"/>
+    </resultMap>
+
+    <select id="queryUserList"  parameterType="com.saibo.model.UserVo" resultMap="UserResult">
+        select *
+        from saibo_user
+        where 1 = 1
+        <if test="name != null   and name != '' ">and name like '%${name}%'
+        </if>
+        <if test="startTime != null  and endTime != null  ">
+            and  hire_date >= #{startTime} and #{endTime} >= hire_date
+        </if>
+        <if test="startTime != null  and ( endTime == null )">
+            and  hire_date >= #{startTime}
+        </if>
+        <if test="endTime != null  and (startTime == null )">
+            and #{endTime } >= hire_date
+        </if>
+        limit #{limit} OFFSET (#{page}-1)*10
+    </select>
+
+    <insert id="saveUser" parameterType="com.saibo.model.User">
+        insert into saibo_user(id, name, user_name, password,position,phone,address,hire_date,isdel)
+        values (nextval('public.saibo_user_id_seq'),
+                #{name},
+                #{userName},
+                #{password},
+                #{position},
+                #{phone},
+                #{address},
+                #{hireDate},
+                #{isdel})
+    </insert>
+    <delete id="deleteUser" parameterType="java.lang.Long">
+        delete
+        from saibo_user
+        where id = #{id}
+    </delete>
+    <select id="getUserById" parameterType="java.lang.Long" resultMap="UserResult">
+        select *
+        from saibo_user
+        where id = #{id}
+    </select>
+
+    <update id="updateUser" parameterType="com.saibo.model.User">
+        update saibo_user
+        set user_name = #{userName},
+            password  = #{password},
+            name      = #{name},
+            position = #{position},
+            phone = #{phone},
+            address = #{address},
+            hire_date = #{hireDate}
+        where id = #{id}
+    </update>
+    <select id="getUser" parameterType="java.lang.String" resultMap="UserResult">
+        select *
+        from saibo_user
+        where user_name = #{userName}
+    </select>
+
+    <delete id="deleteUsers" parameterType="java.util.Arrays">
+        delete from saibo_user where id in
+        <foreach item="id" collection="array" index="index" open="(" separator="," close=")">
+          #{id}
+        </foreach>
+    </delete>
+<select id="likeName"   resultMap="UserResult">
+ select * from saibo_user  where name like  '%${name}%'
+</select>
+
+    <select id="getCount"  parameterType="com.saibo.model.UserVo"    resultType="int">
+        select count(id) from saibo_user
+        where 1 = 1
+        <if test="name != null   and name != '' ">and name like '%${name}%'
+        </if>
+        <if test="startTime != null  and endTime != null  ">
+            and  hire_date >= #{startTime} and #{endTime} >= hire_date
+        </if>
+        <if test="startTime != null  and ( endTime == null )">
+            and  hire_date >= #{startTime}
+        </if>
+        <if test="endTime != null  and (startTime == null )">
+            and #{endTime } >= hire_date
+        </if>
+    </select>
+</mapper>

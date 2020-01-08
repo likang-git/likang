@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <title>springboot-layui界面</title>
+    <link rel="stylesheet" href="../layui/css/layui.css"/>
+</head>
+<body class="layui-layout-body">
+<!--头部-->
+<div class="layui-layout layui-layout-admin">
+    <div class="layui-header">
+        <div class="layui-logo">日志系统</div>
+        <!-- 头部区域（可配合layui已有的水平导航） -->
+        <ul class="layui-nav layui-layout-left">
+            <li class="layui-nav-item" id="ours"><a><label >日志列表</label></a></li>
+            <li class="layui-nav-item" id="my"><a><label >我的日志</label></a></li>
+        </ul>
+        <ul class="layui-nav layui-layout-right">
+            <li class="layui-nav-item">
+                <a href="javascript:;" id="demo">
+                </a>
+            </li>
+            <li class="layui-nav-item" id="sign"><a ><label ></label></a></li>
+            <li class="layui-nav-item"><a href="/user/tuiLogin">退出</a></li>
+        </ul>
+    </div>
+    <table id="sysUserTable" lay-filter="sysUserTable"></table>
+</div>
+
+
+<div class="layui-btn-container" style="position: absolute;right: 0;top: 6px;">
+    <!-- 用户信息列表头部工具栏 -->
+    <script type="text/html" id="userHeaderToolsBar">
+        <form class="layui-form" action="" lay-filter="userQueryForm" style="">
+
+            <div class="layui-row" style="margin-top: 10px;">
+                <div class="selch">
+                    <div class="layui-btn-container" style="margin-left: 1500px;">
+                        <a class="layui-btn  layui-btn-sm" wintitle="写日志" areaw='580px' areah="600px"
+                           lay-event="add" style=" margin-left: 220px;"><span>写工作日志</span>
+                        </a>
+                    </div>
+
+
+                    <div style="clear: both"></div>
+                </div>
+            </div>
+
+            </div>
+        </form>
+
+    </script>
+</div>
+
+
+
+<script type="text/javascript" src="../js/jquery-2.1.4.min.js"></script>
+<script src="../layui/layui.js"></script>
+<script>
+    layui.use(['table', 'layer', 'jquery','element'], function () {
+        var table = layui.table;
+        var layer = layui.layer;
+        var userId = "[[${userId}]]";
+        var name = "[[${name}]]";
+        var element = layui.element;
+        table.render({
+            elem: '#sysUserTable'
+            , height: 'full-90'
+            , url: '/log/userLog'
+            , page: true
+            , toolbar: '#userHeaderToolsBar'
+            , defaultToolbar: ['']//exports导出插件
+            , cols:
+                [
+                    [
+                        {field: 'sn', type: 'numbers', title: '序号', fixed: 'left'}
+                        , {type: 'checkbox', fixed: 'left'}
+                        , {field: 'id', title: 'id', hide: true}
+                        , {field: 'name', title: '姓名'}
+                        , {field: 'workTime', title: '工作时间', sort:true}
+                        , {field: 'content', title: '工作内容'}
+                        , {field: 'createTime', title: '创建时间', sort:true}
+                    ]
+                ]
+        });
+
+
+        var  a = "上班打卡";
+        var  b = "下班打卡";
+        var  id ="";
+        // $("#sign").html("<span>"+a+"</span>")
+        $("#my").click(function() {
+            window.location.href="/log/myLog?userId="+userId;
+        });
+
+        $("#ours").click(function() {
+            window.location.href="/log/ygLog?userId="+userId;
+        });
+
+        $("#sign").click(function() {
+            check();
+            var sign ={};
+             sign.id = id;
+             sign.signOut =endTime;
+            $.ajax({
+                url:"/sign/clock?userId="+userId,
+                data:sign,
+                success: function(msg){
+                   id = msg.data.id;
+                   endTime = msg.data.signOut;
+                   if (msg.count==1){
+                       layer.msg(msg.data, {icon: 2, time: 1800});
+                   }else {
+                    layer.msg(msg.msg, {icon: 1, time: 1800});
+                   }
+                    // if (msg.data.signOut==null&&msg.data.signIn!=null){
+                    //     $("#sign").html("<span>"+b+"</span>")
+                    // }else {
+                    //     $("#sign").html("<span>"+a+"</span>")
+                    // }
+                    if (msg.data.signIn ==null){
+                        $("#sign").html("<span>"+a+"</span>")
+                    }else {
+                        if (msg.data.signOut ==null){
+                            $("#sign").html("<span>"+b+"</span>")
+                        } else {
+                            $("#sign").html("<span>"+a+"</span>")
+                        }
+                    }
+
+                }
+
+            })
+        });
+        var endTime="";
+        var stTime="";
+        check();
+        function check(){
+        $.ajax({
+            url:"/sign/check?userId="+userId,
+            success: function(msg){
+                console.log(msg);
+                if (msg.count==200){
+                    $("#sign").html("<span>"+b+"</span>")
+                    id = msg.data.id;
+                }else {
+                    if(msg.data.id != null){
+                        id = msg.data.id;
+                    }
+                    endTime = msg.data.signOut;
+                    $("#sign").html("<span>"+a+"</span>")
+                }
+
+            }
+        });
+        }
+
+        $("#demo").append("<span>" + name + "</span>");
+
+        table.on('tool(sysUserTable)', function (obj) {
+            var data = obj.data;
+            var _this = this;
+            if (obj.event === 'edit') {
+
+                layer.open({
+                    type: 2,
+                    title: '修改',
+                    area: [_this.getAttribute('areaw'), _this.getAttribute('areah')],
+                    //传递参数的时候，参数必须跟在#之前
+                    content: "getUserById?id=" + data.id,
+                    end: function (index, layero) {
+                    }
+                });
+            } else {
+                var s = data.id;
+                layer.confirm('确定删除当前数据吗？', function () {
+                    $.ajax({
+                        url: "deleteUser?id=" + s,
+                        success: function (data) {
+                            //成功后的提示
+                            layer.alert(data.msg);
+                            //执行重载
+                            table.reload('sysUserTable', {
+                                page: {curr: 1, limit: 10}
+                            });
+                        },
+                        error: function (data) {
+                            layer.alert(data.msg);
+                        }
+                    })
+                })
+            }
+        })
+        table.on('toolbar(sysUserTable)', function (obj) {
+            var checkStatus = table.checkStatus(obj.config.id);
+            var data = checkStatus.data;
+            var _this = this;
+            switch (obj.event) {
+                case 'add':
+                    layer.open({
+                        type: 2,
+                        title: '写日志',
+                        area: ['580px','600px'],
+                        content: '/log/addLog?userId='+userId,
+                        end: function () {
+                            var index = parent.layer.getFrameIndex(window.name); //先得到当前iframe层的索引
+                            parent.layer.close(index); //再执行关闭
+                            table.reload('sysUserTable')
+                        }
+                    });
+                    break;
+                case 'delete':
+                    if (data.length === 0) {
+                        layer.msg('请先选择一行数据！');
+                    } else {
+                        var seleIds = [];
+                        for (var i = 0; i < data.length; i++) {
+                            seleIds.push(data[i].id);
+                        }
+                        layer.confirm('确定删除当前数据吗？', function (index) {
+                            layer.close(index);
+                            $.ajax({
+                                url: "deleteUser",
+                                type: "get",
+                                contentType: 'application/json',
+                                dataType: 'json',
+                                data: {id: seleIds.join(","),},
+                                success: function (data) {
+                                    layer.alert(data.msg);
+                                    //执行重载
+                                    table.reload('sysUserTable');
+                                },
+                                error: function (XMLHttpRequest, textStatus, errorThrown) {
+                                    layer.alert(data.msg);
+                                    //执行重载
+                                    table.reload('sysUserTable', {
+                                        page: {curr: 1, limit: 10},
+                                    });
+                                },
+                            })
+                        })
+                    }
+                    break;
+                case "query":
+                    var title = $("input[name='title']").val();
+                    var params11 = {
+                        "title": title,
+                    }
+                    table.reload("attendancePointTable", {
+                        where: { //设定异步数据接口的额外参数，任意设
+                            Q_title_SL: title,
+                        },
+                        page: {
+                            curr: 1
+                        }
+                    });
+                    form.val('attendancePointTable', params11);
+                    break;
+
+            }
+            ;
+        });
+    })
+</script>
+</body>
+</html>

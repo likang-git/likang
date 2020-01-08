@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link rel="stylesheet" href="../layui/css/layui.css"/>
+</head>
+<body>
+<form class="layui-form" action="" style="height: 536px;padding: 10px 25px 10px 0;position: relative"
+      lay-filter="userForm">
+    <div class="layui-form-item" style="display: none">
+        <label class="layui-form-label">id</label>
+        <div class="layui-input-block">
+            <input type="text" name="id" placeholder="" lay-verify=""
+                   autocomplete="off" class="layui-input" maxlength="50" fieldname="id">
+        </div>
+    </div>
+
+    <div class="layui-form-item">
+        <label class="layui-form-label">姓名</label>
+        <div class="layui-input-block">
+            <input type="text" name="name" placeholder="请输入姓名" lay-verify="required"
+                   autocomplete="off" class="layui-input" maxlength="50" fieldname="name">
+        </div>
+    </div>
+
+    <div class="layui-form-item">
+        <label class="layui-form-label">账号</label>
+        <div class="layui-input-block">
+            <input type="text" name="userName" placeholder="请输入用户名" lay-verify="required"
+                   autocomplete="off" class="layui-input" maxlength="50" fieldname="userName">
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">密码</label>
+        <div class="layui-input-block">
+            <input type="password" name="password" placeholder="请输入密码" lay-verify="required"
+                   autocomplete="off" class="layui-input" maxlength="50" fieldname="password">
+        </div>
+    </div>
+
+    <div class="layui-form-item"  >
+        <label class="layui-form-label">职位</label>
+        <div class="layui-input-block">
+            <input type="text" name="position"  placeholder="请输入职位"
+                   autocomplete="off" class="layui-input" maxlength="50" fieldname="position">
+        </div>
+    </div>
+    <div class="layui-form-item"  >
+        <label class="layui-form-label">联系方式</label>
+        <div class="layui-input-block">
+            <input type="text" name="phone"  placeholder="请输入联系方式"
+                   autocomplete="off" class="layui-input" maxlength="50" fieldname="phone">
+        </div>
+    </div>
+    <div class="layui-form-item"  >
+        <label class="layui-form-label">居住地址</label>
+        <div class="layui-input-block">
+            <input type="text" name="address"  placeholder="请输入居住地址"
+                   autocomplete="off" class="layui-input" maxlength="50" fieldname="address">
+        </div>
+    </div>
+    <div class="layui-form-item"  >
+        <label class="layui-form-label">入职时间</label>
+        <div class="layui-input-block">
+            <input type="text" name="hireDate" id="hireDate"  placeholder="请输入入职时间"
+                   autocomplete="off" class="layui-input" maxlength="50" fieldname="hireDate">
+        </div>
+    </div>
+
+    <div class="layui-form-item" style="position: absolute;bottom: 0;left: 10%">
+        <div class="layui-input-block">
+            <a lay-submit lay-filter="submit" class="layui-btn btn-n">提交</a>
+            <button type="reset" class="layui-btn layui-btn-primary">重置</button>
+        </div>
+    </div>
+</form>
+<script type="text/javascript" src="../js/jquery-2.1.4.min.js"></script>
+<script src="../layui/layui.js"></script>
+
+<script>
+    layui.use(['table', 'layer', 'form', 'laydate'], function () {
+        var table = layui.table;
+        var layer = layui.layer;
+        var form = layui.form;
+        var laydate = layui.laydate;
+        var id = "[[${id}]]";
+        //常规用法
+        laydate.render({
+            elem: '#hireDate'
+        });
+
+
+        if(id!=null && id!=""){
+            get(id);
+        }
+        function get(id) {
+            $.ajax({
+                url: "get",
+                type: "post",
+                dataType: "json",
+                data: {
+                    "id": id
+                },
+                success: function (data) {
+                    form.val("userForm", { //userForm 即 class="layui-form" 所在元素属性 lay-filter="" 对应的值
+                        "name": data.name
+                        , "userName": data.userName
+                        , "password": data.password
+                        , "id": data.id
+                        , "position": data.position
+                        , "phone": data.phone
+                        , "address": data.address
+                        , "hireDate": data.hireDate
+                    });
+                }
+            });
+        }
+
+
+        form.on('submit(submit)', function (data) {
+            $.ajax({
+                url: "saveUser",
+                type: "post",
+                dataType: "json",
+                data: data.field,
+                success: function (msg) {
+                    // layer.alert(data.msg, function () {
+                    //     var index = parent.layer.getFrameIndex(window.name); //先得到当前iframe层的索引
+                    //     parent.layer.close(index); //再执行关闭
+                    // });
+                    if (msg.count==500){
+                        layer.msg(msg.data, {icon: 2, time: 1800})
+                    }else {
+                    layer.msg(msg.msg, {icon: 1, time: 1800}, function () {
+                        var index = parent.layer.getFrameIndex(window.name);
+                        parent.location.reload(); //刷新父页面
+                        parent.layer.close(index);
+                    });
+                    }
+                }
+            })
+        })
+
+    })
+</script>
+</body>
+</html>

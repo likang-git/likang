@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <title>springboot-layui界面</title>
+    <link rel="stylesheet" href="../layui/css/layui.css"/>
+</head>
+<body>
+
+<form class="layui-form" action="" >
+    <div class="layui-form-item">
+        <label class="layui-form-label">输入框</label>
+        <div class="layui-input-inline">
+            <input type="text" name="title" id="inputValue"  value=""  lay-verify="required"  lay-filter="search" placeholder="请输入标题" autocomplete="off" class="layui-input">
+            <span id="dom" lay-varify="findValue"></span>
+        </div>
+
+    </div>
+
+
+</form>
+
+
+
+<script type="text/javascript" src="../js/jquery-2.1.4.min.js"></script>
+<script src="../layui/layui.js"></script>
+<script>
+    layui.use(['table', 'layer', 'form', 'laydate'], function () {
+        var form = layui.form;
+
+        //输入框的值改变时触发
+        $("#inputValue").on("input", function (e) {
+        //获取input输入的值
+        //     console.log(e.delegateTarget.value);
+            if (e.delegateTarget.value.length==0){
+                $("#dom").html("");
+            }
+            $.ajax({
+                url:"find/search",
+                type:"get",
+                dataType: "json",
+                data: {
+                    "value": e.delegateTarget.value
+                },
+              success:function (obj) {
+
+                    $("#dom").html("");
+                    if (obj.data.length>0){
+                        for (var i=0 ; i<obj.data.length ;i++){
+                            $("#dom").append("<li id="+i+">"+obj.data[i].name+"</li><br/>")
+                        }
+                    }
+
+              }
+                })
+        });
+
+        $("#dom").on("click","li",function (obj) {
+            // console.log(obj)
+            console.log(obj.currentTarget.innerHTML);
+            // console.log($("#dom"))
+            $("#inputValue").val(obj.currentTarget.innerHTML);
+            // $("#inputValue").value = obj.currentTarget.innerHTML;
+        })
+        
+    })
+</script>
+</body>
+</html>

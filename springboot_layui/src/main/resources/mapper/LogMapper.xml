@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.saibo.dao.LogDao">
+
+
+    <resultMap id="LogResult" type="com.saibo.model.Log">
+        <id property="id" column="ID" jdbcType="NUMERIC"/>
+        <result property="workTime" column="workTime" jdbcType="VARCHAR"/>
+        <result property="content" column="content" jdbcType="VARCHAR"/>
+        <result property="createTime" column="createTime" jdbcType="TIMESTAMP"/>
+        <result property="userId" column="user_Id" jdbcType="NUMERIC"/>
+    </resultMap>
+
+   <select id="logList" parameterType="com.saibo.model.Log"  resultMap="LogResult">
+       SELECT a.* , b.name FROM t_user_log a  left join  saibo_user b on a.user_id  = b.id
+       where 1 = 1
+       <if test="name != null   and name != '' ">
+           and  name like  '%${name}%'
+       </if>
+       <if test="userId != null   and userId != '' ">
+           and  a.user_id = #{userId}
+       </if>
+       limit #{limit} OFFSET (#{page}-1)*10
+   </select>
+
+    <select id="getCount" parameterType="com.saibo.model.Log"  resultType="int">
+        SELECT count(b.id) FROM t_user_log a  left join  saibo_user b on a.user_id  = b.id
+        where 1 = 1
+        <if test="name != null   and name != '' ">
+            and  name like  '%${name}%'
+        </if>
+        <if test="userId != null   and userId != '' ">
+            and  a.user_id = #{userId}
+        </if>
+    </select>
+
+    <insert id="saveLog" parameterType="com.saibo.model.Log" >
+        insert  into  t_user_log
+        values (nextval('public.saibo_user_id_seq'),
+                #{workTime},
+                #{content},
+                #{createTime},
+                #{userId}
+               )
+    </insert>
+</mapper>

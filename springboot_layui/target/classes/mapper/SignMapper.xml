@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.saibo.dao.SignDao">
+
+
+    <resultMap id="SignResult" type="com.saibo.model.Sign">
+        <id property="id" column="ID" jdbcType="VARCHAR"/>
+        <result property="signIn" column="signIn" jdbcType="TIMESTAMP"/>
+        <result property="signOut" column="signOut" jdbcType="TIMESTAMP"/>
+        <result property="userId" column="user_Id" jdbcType="NUMERIC"/>
+    </resultMap>
+
+    <insert id="saveSign" parameterType="com.saibo.model.Sign" >
+        insert  into  t_user_sign
+        values (#{id},
+               #{signIn},
+                #{signOut},
+                #{userId}
+               )
+    </insert>
+    <update id="updateSign" parameterType="com.saibo.model.Sign">
+        update  t_user_sign  set  "signOut"=#{signOut}  where id=#{id}
+    </update>
+
+    <select id="check" parameterType="com.saibo.model.Sign" resultMap="SignResult">
+        select  * from t_user_sign where user_id = #{userId}  and to_char("signIn",'yyyy-mm-dd') = #{newTime}
+    </select>
+    <select id="getSign" parameterType="java.lang.String" resultMap="SignResult">
+        select  * from t_user_sign where  id=#{id}
+    </select>
+    <select id="geSign" parameterType="java.lang.Long" resultMap="SignResult">
+        select a.* ,b.name  from  t_user_sign a left join  saibo_user b  on a.user_id = b.id
+        where  user_id = #{userId1}
+    </select>
+</mapper>

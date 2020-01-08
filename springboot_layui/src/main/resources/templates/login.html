@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>用户登录</title>
+    <link rel="stylesheet" href="../layui/css/layui.css"/>
+</head>
+<body>
+<!--头部-->
+<ul class="layui-nav">
+    <li class="layui-nav-item">
+        <a href=""><span class="layui-icon layui-icon-group"></span>员工管理系统</a>
+    </li>
+    <li class="layui-nav-item" style="left: auto">
+        <a><span class="layui-icon layui-icon-username"></span>个人中心</a>
+    </li>
+</ul>
+<div style="text-align: center; margin-top: 15% ;">
+    <div class="layui-inline" >
+<!--登录-->
+<form class="layui-form" lay-filter="sysUserForm">
+
+    <div class="layui-form-item">
+        <label class="layui-form-label">账号</label>
+        <div class="layui-input-inline">
+            <input type="text" name="userName" required lay-verify="required" placeholder="请输入账号" autocomplete="off"
+                   class="layui-input">
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">密码</label>
+        <div class="layui-input-inline">
+            <input type="password" name="password" required lay-verify="required" placeholder="请输入密码" autocomplete="off"
+                   class="layui-input">
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <div class="layui-input-block">
+            <a class="layui-btn" lay-submit lay-filter="submit">登陆</a>
+            <button type="reset" class="layui-btn layui-btn-primary">重置</button>
+        </div>
+    </div>
+</form>
+        <div>
+            <span>[[${msg}]]</span>
+        </div>
+</div>
+</div>
+<script type="text/javascript" src="../js/jquery-2.1.4.min.js"></script>
+<script src="../layui/layui.js"></script>
+<script>
+    layui.use(['layer', 'form'], function () {
+        var layer = layui.layer;
+        var form = layui.form;
+        form.on('submit(submit)', function (data) {
+            $.ajax({
+                url: "userLogin",
+                type: "post",
+                dataType: "json",
+                data: data.field,
+                success: function (data) {
+
+                    if (data.code == 1) {
+                        layer.msg(data.msg);
+                    } else if (data.code == 0 && data.count==200) {
+                        window.location.href = "/user/managerUser";
+                    }else if(data.code==0 && data.count!=200){
+                        window.location.href = "/user/staffUser?id="+data.data.id;
+                    }
+                }
+            })
+        })
+
+
+    });
+</script>
+
+</body>
+</html>
